@@ -11,7 +11,7 @@ from pikaptcha.url import *
 import pprint
 import threading
 import getopt
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import imaplib
 import string
 import re
@@ -117,9 +117,9 @@ def _verify_settings(settings):
     for verification in verifications:
         try:
             verification(settings)
-        except PTCException, e:
-            print e.message
-            print "Terminating."
+        except PTCException as e:
+            print(e.message)
+            print("Terminating.")
             sys.exit()
     return True
 
@@ -131,13 +131,13 @@ def entry():
         captchabal = "Failed"
         while(captchabal == "Failed"):
             captchabal = openurl("http://2captcha.com/res.php?key=" + args.recaptcha + "&action=getbalance")
-        print("Your 2captcha balance is: " + captchabal)
-        print("This run will cost you approximately: " + str(float(args.count)*0.003))
+        print(("Your 2captcha balance is: " + captchabal))
+        print(("This run will cost you approximately: " + str(float(args.count)*0.003)))
 
     username = args.username    
     
     if args.inputtext != None:
-        print("Reading accounts from: " + args.inputtext)
+        print(("Reading accounts from: " + args.inputtext))
         lines = [line.rstrip('\n') for line in open(args.inputtext, "r")]
         args.count = len(lines)
         
@@ -147,7 +147,7 @@ def entry():
                 ulist.write("The following accounts use the email address: " + args.plusmail + "\n")
                 ulist.close()
         for x in range(0,args.count):
-            print("Making account #" + str(x+1))
+            print(("Making account #" + str(x+1)))
             if ((args.username != None) and (args.count != 1) and (args.inputtext == None)):
                 if(args.startnum == None):
                     username = args.username + str(x+1)
@@ -161,9 +161,9 @@ def entry():
                 try:
                     account_info = pikaptcha.random_account(username, args.password, args.email, args.birthday, args.plusmail, args.recaptcha, args.captchatimeout)
                     
-                    print('  Username:  {}'.format(account_info["username"]))
-                    print('  Password:  {}'.format(account_info["password"]))
-                    print('  Email   :  {}'.format(account_info["email"]))
+                    print(('  Username:  {}'.format(account_info["username"])))
+                    print(('  Password:  {}'.format(account_info["password"])))
+                    print(('  Email   :  {}'.format(account_info["email"])))
                     
                     # Accept Terms Service
                     #accept_tos(account_info["username"], account_info["password"], args.location, args.proxy)

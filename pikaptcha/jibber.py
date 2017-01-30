@@ -35,11 +35,11 @@ def generate_word():
 
 def generate_words(wordcount):
     """Returns a list of ``wordcount`` pseudo-words."""
-    return ''.join([generate_word() for _ in xrange(wordcount)])
+    return ''.join([generate_word() for _ in range(wordcount)])
 
 
 def random_chars(chars, count):
-    return [random.choice(chars) for _ in xrange(count)]
+    return [random.choice(chars) for _ in range(count)]
 
 
 def generate_password(lowercase_length, uppercase_length, digit_length, symbol_length):

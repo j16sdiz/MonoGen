@@ -2,7 +2,7 @@ import time
 import string
 import random
 import datetime
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
@@ -15,8 +15,6 @@ from pikaptcha.ptcexceptions import *
 from pikaptcha.url import *
 from seleniumrequests import Chrome
 from seleniumrequests import PhantomJS
-
-user_agent = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " + "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.57 Safari/537.36")
 
 BASE_URL = "https://club.pokemon.com/us/pokemon-trainer-club"
 
@@ -92,9 +90,9 @@ def _validate_username(driver, username):
         response_data = response.json()
 
         if response_data['valid'] and not response_data['inuse']:
-            print("User '" + username + "' is available, proceeding...")
+            print(("User '" + username + "' is available, proceeding..."))
         else:
-            print("User '" + username + "' is already in use.")
+            print(("User '" + username + "' is already in use."))
             driver.close()
             raise PTCInvalidNameException("User '" + username + "' is already in use.")
     except:
@@ -105,10 +103,9 @@ def create_account(username, password, email, birthday, captchakey2, captchatime
     if password is not None:
         _validate_password(password)
 
-    print("Attempting to create user {user}:{pw}. Opening browser...".format(user=username, pw=password))
+    print(("Attempting to create user {user}:{pw}. Opening browser...".format(user=username, pw=password)))
     if captchakey2 != None:
         dcap = dict(DesiredCapabilities.PHANTOMJS)
-        dcap["phantomjs.page.settings.userAgent"] = user_agent
         #driver = webdriver.PhantomJS(desired_capabilities=dcap)
         driver = PhantomJS(desired_capabilities=dcap)
     else:
@@ -117,7 +114,7 @@ def create_account(username, password, email, birthday, captchakey2, captchatime
         driver.set_window_size(600, 600)
 
     # Input age: 1992-01-08
-    print("Step 1: Verifying age using birthday: {}".format(birthday))
+    print(("Step 1: Verifying age using birthday: {}".format(birthday)))
     driver.get("{}/sign-up/".format(BASE_URL))
     assert driver.current_url == "{}/sign-up/".format(BASE_URL)
     elem = driver.find_element_by_name("dob")
@@ -169,7 +166,7 @@ def create_account(username, password, email, birthday, captchakey2, captchatime
             WebDriverWait(driver, 60).until(EC.text_to_be_present_in_element_value((By.NAME, "g-recaptcha-response"), ""))
             print("Captcha successful. Sleeping for 1 second...")
             time.sleep(1)
-        except TimeoutException, err:
+        except TimeoutException as err:
             print("Timed out while manually solving captcha")
     else:
         # Now to automatically handle captcha
@@ -183,7 +180,7 @@ def create_account(username, password, email, birthday, captchakey2, captchatime
         captchaid = recaptcharesponse[3:]
         recaptcharesponse = "CAPCHA_NOT_READY"
         elem = driver.find_element_by_class_name("g-recaptcha")
-        print"We will wait 10 seconds for captcha to be solved by 2captcha"
+        print("We will wait 10 seconds for captcha to be solved by 2captcha")
         start_time = int(time.time())
         timedout = False
         while recaptcharesponse == "CAPCHA_NOT_READY":
@@ -193,7 +190,7 @@ def create_account(username, password, email, birthday, captchakey2, captchatime
                 print("Captcha timeout reached. Exiting.")
                 timedout = True
                 break
-            print "Captcha still not solved, waiting another 10 seconds."
+            print("Captcha still not solved, waiting another 10 seconds.")
             recaptcharesponse = "Failed"
             while(recaptcharesponse == "Failed"):
                 recaptcharesponse = openurl("http://2captcha.com/res.php?key=" + captchakey2 + "&action=get&id=" + captchaid)
@@ -203,7 +200,7 @@ def create_account(username, password, email, birthday, captchakey2, captchatime
             elem = driver.find_element_by_name("g-recaptcha-response")
             elem = driver.execute_script("arguments[0].style.display = 'block'; return arguments[0];", elem)
             elem.send_keys(solvedcaptcha)
-            print "Solved captcha"
+            print("Solved captcha")
     try:
         user.submit()
     except StaleElementReferenceException:
@@ -212,7 +209,7 @@ def create_account(username, password, email, birthday, captchakey2, captchatime
     try:
         _validate_response(driver)
     except:
-        print("Failed to create user: {}".format(username))
+        print(("Failed to create user: {}".format(username)))
         driver.close()
         raise
 

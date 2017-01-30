@@ -1,14 +1,14 @@
 import time
 import imaplib
 import string
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 from pikaptcha.url import *
 
 
 def proc_mail(M):
     rv, data = M.search(None, "ALL")
     if rv!= 'OK':
-        print "No messages found!"
+        print("No messages found!")
         return
     else:
         start_time = time.clock()
@@ -17,7 +17,7 @@ def proc_mail(M):
                 print("It has been more than 30 seconds. Please use an email address with an empty inbox.")
             rv, data = M.fetch(num, '(RFC822)')
             if rv!= 'OK':
-                print "Error getting message."
+                print("Error getting message.")
                 return
             subjmsg = M.fetch(num, '(BODY[HEADER.FIELDS (SUBJECT)])')
             subjmsg = subjmsg[1][0][1]
@@ -33,10 +33,10 @@ def proc_mail(M):
                         validate_response = "Failed"
                         while(validate_response == "Failed"):
                             validate_response = activateurl(validlink)
-                        print "Verified email and trashing Email with key: " + validlink[60:] + "\n"
+                        print("Verified email and trashing Email with key: " + validlink[60:] + "\n")
                         M.store(num,'+X-GM-LABELS', '\\Trash')
-                    except urllib2.URLError:
-                        print "Unable to verify email.\n"
+                    except urllib.error.URLError:
+                        print("Unable to verify email.\n")
                         M.store(num,'+X-GM-LABELS', '\\Trash')
 
 def email_verify(plusmail, googlepass):
@@ -46,14 +46,14 @@ def email_verify(plusmail, googlepass):
     M = imaplib.IMAP4_SSL('imap.gmail.com')    
     try:
         M.login(email_address, googlepass)
-        print "Logged in to: " + email_address
+        print("Logged in to: " + email_address)
 
         rv, mailboxes = M.list()
         rv, data = M.select("INBOX")
         if rv == 'OK':
-            print "Processing mailbox..."
+            print("Processing mailbox...")
             proc_mail(M)
             M.close()
         M.logout()
     except imaplib.IMAP4.error:
-        print "Unable to login to: " + email_address + ". Was not verified\n"
+        print("Unable to login to: " + email_address + ". Was not verified\n")
