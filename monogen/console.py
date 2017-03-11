@@ -1,10 +1,17 @@
 #!/usr/bin/env python3
 
-from sys import exit
+import sys
+
 from argparse import ArgumentParser
 from re import match
 from csv import DictWriter
 from pathlib import Path
+
+try:
+    from monocle.utils import generate_device_info
+    GENERATE_DEVICE = True
+except ImportError:
+    GENERATE_DEVICE = False
 
 from .ptcexceptions import *
 from .gmailv import *
@@ -64,7 +71,7 @@ def parse_arguments():
     )    
     parser.add_argument(
         '-f','--csvfile', type=str, default='accounts.csv',
-        help='This is the location you want to save usernames.txt'
+        help='This is the location you want to save your accounts CSV to.'
     )
     parser.add_argument(
         '-it','--inputtext', type=str, default=None,
@@ -78,12 +85,20 @@ def parse_arguments():
         '-ct','--captchatimeout', type=int, default=500,
         help='Allows you to set the time to timeout captcha and forget that account (and forgeit $0.003).'
     )
+    parser.add_argument(
+        '-q', '--queue', dest='queue', action='store_true',
+        help='Automatically add account to Monocle queue.'
+    )
+    parser.add_argument(
+        '-m', '--monocle-dir', type=str, default=None,
+        help='Monocle location, defaults to current directory.'
+    )
 
     return parser.parse_args()
 
 def _verify_autoverify_email(settings):
     if (settings['args'].googlepass is not None and settings['args'].plusmail is None and settings['args'].googlemail is None):
-        raise PTCInvalidEmailException("You have to specify a plusmail (--plusmail or -m) or a google email (--googlemail or -gm) to use autoverification.")
+        raise PTCInvalidEmailException("You have to specify an email (--email or -e) or a google email (--googlemail or -gm) to use autoverification.")
 
 def _verify_plusmail_format(settings):
     if (settings['args'].plusmail and not match(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", settings['args'].email)):
@@ -103,12 +118,31 @@ def _verify_settings(settings):
         except PTCException as e:
             print(e.message)
             print("Terminating.")
-            exit()
+            sys.exit()
     return True
 
 def entry():
     """Main entry point for the package console commands"""
     args = parse_arguments()
+
+    global GENERATE_DEVICE
+
+    if not GENERATE_DEVICE:
+        if args.monocle_dir:
+            sys.path.append(args.monocle_dir)
+        else:
+            sys.path.append('.')
+        try:
+            from monocle.utils import generate_device_info
+            GENERATE_DEVICE = True
+        except ImportError:
+            GENERATE_DEVICE = False
+
+    if args.queue:
+        if not GENERATE_DEVICE:
+            raise ImportError('Could not find Monocle, are you in the right folder?')
+        from .monoqueue import add_to_queue
+
     captchabal = None
     if args.recaptcha is not None:
         captchabal = "Failed"
@@ -151,6 +185,9 @@ def entry():
                         else:
                             email_verify(args.email, args.googlepass)
 
+                    if GENERATE_DEVICE:
+                        account_info = generate_device_info(account_info)
+
                     output = Path(args.csvfile)
                     write_header = not output.exists()
                     # Append usernames
@@ -162,6 +199,8 @@ def entry():
                             writer.writeheader()
 
                         writer.writerow(account_info)
+                    if args.queue:
+                        add_to_queue(account_info)
                 # Handle account creation failure exceptions
                 except PTCInvalidPasswordException as err:
                     error_msg = 'Invalid password: {}'.format(err)
@@ -174,5 +213,5 @@ def entry():
                 error_msg = "Generic Exception: " + traceback.format_exc()
             if error_msg:
                 if args.count == 1:
-                    exit(error_msg)
+                    sys.exit(error_msg)
                 print(error_msg)

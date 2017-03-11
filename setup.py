@@ -1,23 +1,20 @@
-import os
+from pathlib import Path
 from setuptools import setup
 
-DIST_NAME = 'Pikaptcha'
-VERSION = 'v0.2'
+DIST_NAME = 'MonoGen'
+VERSION = '0.3'
 AUTHOR = 'David Christenson'
 EMAIL = 'mail@noctem.xyz'
 GITHUB_USER = 'Noctem'
 GITHUB_URL = 'https://github.com/{}/{}'.format(GITHUB_USER, DIST_NAME)
 
-# Get the long description from the README file
-setup_dir = os.path.dirname(os.path.realpath(__file__))
-with open(os.path.join(setup_dir, 'README.md'), encoding='utf-8') as readme:
-    long_description = readme.read()
 
 setup(
     name=DIST_NAME,
-    packages=['pikaptcha'],
+    packages=['monogen'],
     version=VERSION,
-    description='Pokemon Go Bulk Account Creator.',
+    description='Bulk PTC account creator.',
+    long_description='MonoGen creates PTC accounts by creating a chrome session and automatically entering data in the required fields.',
     author=AUTHOR,
     author_email=EMAIL,
     url=GITHUB_URL,
@@ -35,7 +32,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'pikaptcha = pikaptcha.console:entry',
+            'monogen = monogen.console:entry',
         ],
     }
 )
