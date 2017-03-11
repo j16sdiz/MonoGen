@@ -157,7 +157,13 @@ def entry():
         print(("Reading accounts from: " + args.inputtext))
         lines = [line.rstrip('\n') for line in open(args.inputtext, "r")]
         args.count = len(lines)
-        
+
+    output = Path(args.csvfile)
+    write_header = not output.exists()
+    if not write_header:
+        with output.open('r') as f:
+            newline = f.read()[-1] != '\n'
+
     if _verify_settings({'args':args, 'balance':captchabal}):
         for x in range(args.count):
             print("Making account #{}".format(x + 1))
@@ -188,8 +194,6 @@ def entry():
                     if GENERATE_DEVICE:
                         account_info = generate_device_info(account_info)
 
-                    output = Path(args.csvfile)
-                    write_header = not output.exists()
                     # Append usernames
                     with output.open('a') as csvfile:
                         fieldnames = ('username', 'password', 'provider', 'model', 'iOS', 'id')
@@ -197,6 +201,10 @@ def entry():
 
                         if write_header:
                             writer.writeheader()
+                            write_header = False
+                        elif newline:
+                            csvfile.write('\r\n')
+                            newline = False
 
                         writer.writerow(account_info)
                     if args.queue:
