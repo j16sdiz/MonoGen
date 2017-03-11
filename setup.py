@@ -1,13 +1,12 @@
 import os
-from io import open
 from setuptools import setup
 
 DIST_NAME = 'Pikaptcha'
-VERSION = 'v0.1'
-AUTHOR = 'sriyegna'
-EMAIL = 'sriyegna@gmail.com'
-GITHUB_USER = 'sriyegna'
-GITHUB_URL = 'https://github.com/{GITHUB_USER}/{DIST_NAME}'.format(**locals())
+VERSION = 'v0.2'
+AUTHOR = 'David Christenson'
+EMAIL = 'mail@noctem.xyz'
+GITHUB_USER = 'Noctem'
+GITHUB_URL = 'https://github.com/{}/{}'.format(GITHUB_USER, DIST_NAME)
 
 # Get the long description from the README file
 setup_dir = os.path.dirname(os.path.realpath(__file__))
@@ -23,16 +22,14 @@ setup(
     author_email=EMAIL,
     url=GITHUB_URL,
     license='GPL v3',
-    download_url='{GITHUB_URL}/tarball/{VERSION}'.format(**locals()),
-    keywords='',
+    download_url='{}/releases'.format(GITHUB_URL),
     install_requires=[
         'requests[security]>=2.10.0',
-        'six>=1.10.0',
         'selenium>=2.53.6'
     ],
     classifiers=[
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
         'Programming Language :: Python :: Implementation :: CPython',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
     ],

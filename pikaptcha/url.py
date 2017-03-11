@@ -1,29 +1,31 @@
-import urllib.request, urllib.error, urllib.parse
+import requests
 
 def openurl(address):
     try:
-        urlresponse = urllib.request.urlopen(address).read()
-        return urlresponse        
-    except urllib.error.HTTPError as e:
-        print(("HTTPError = " + str(e.code)))
-    except urllib.error.URLError as e:
-        print(("URLError = " + str(e.code)))
+        r = requests.get(address)
+        r.raise_for_status()
+        return r.text
+    except requests.HTTPError as e:
+        print("HTTPError = {}".format(r.status_code))
+    except requests.ConnectionError as e:
+        print("ConnectionError = {}".format(e))
     except Exception:
         import traceback
-        print(("Generic Exception: " + traceback.format_exc()))
-    print(("Request to " + address + "failed."))
+        print("Generic Exception: {}".format(traceback.format_exc()))
+    print("Request to {} failed.".format(address))
     return "Failed"
 
 def activateurl(address):
     try:
-        urlresponse = urllib.request.urlopen(address)
-        return urlresponse
-    except urllib.error.HTTPError as e:
-        print(("HTTPError = " + str(e.code)))
-    except urllib.error.URLError as e:
-        print(("URLError = " + str(e.code)))
+        r = requests.get(address)
+        r.raise_for_status()
+        return r
+    except requests.HTTPError as e:
+        print("HTTPError = {}".format(r.status_code))
+    except requests.ConnectionError as e:
+        print("ConnectionError = {}".format(e))
     except Exception:
         import traceback
-        print(("Generic Exception: " + traceback.format_exc()))
-    print(("Request to " + address + "failed."))
+        print("Generic Exception: {}".format(traceback.format_exc()))
+    print("Request to {} failed.".format(address))
     return "Failed"

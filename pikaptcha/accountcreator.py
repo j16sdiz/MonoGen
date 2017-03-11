@@ -1,8 +1,7 @@
 import time
-import string
-import random
-import datetime
-import urllib.request, urllib.error, urllib.parse
+
+from random import randint
+from datetime import datetime, timedelta
 
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
@@ -10,11 +9,11 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import StaleElementReferenceException, TimeoutException
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from pikaptcha.jibber import *
-from pikaptcha.ptcexceptions import *
-from pikaptcha.url import *
 from seleniumrequests import Chrome
-from seleniumrequests import PhantomJS
+
+from .jibber import *
+from .ptcexceptions import *
+from .url import *
 
 BASE_URL = "https://club.pokemon.com/us/pokemon-trainer-club"
 
@@ -29,48 +28,32 @@ DUPE_EMAIL_URL = 'https://club.pokemon.com/us/pokemon-trainer-club/forgot-passwo
 BAD_DATA_URL = 'https://club.pokemon.com/us/pokemon-trainer-club/parents/sign-up'
 
 
-def _random_string(length=15):
+def _random_string():
     return generate_words(3)
 
-def _random_email(local_length=10, sub_domain_length=5, top_domain=".com"):
-    return "{local}@{sub_domain}{top_domain}".format(
-        local=_random_string(local_length),
-        sub_domain=_random_string(sub_domain_length),
-        top_domain=top_domain
-    )
-
 def _random_password():
-    return generate_password(5, 5, 3, 2)
+    return generate_password()
 
 
 def _random_birthday():
-    start = datetime.datetime(1980, 1, 1)
-    end = datetime.datetime(1990, 12, 31)
+    start = datetime(1970, 1, 1)
+    end = datetime(2000, 12, 31)
     diff = end - start
-    random_duration = random.randint(0, diff.total_seconds())
-    birthday = start + datetime.timedelta(seconds=random_duration)
-    return "{year}-{month:0>2}-{day:0>2}".format(year=birthday.year, month=birthday.month, day=birthday.day)
+    random_duration = randint(0, diff.total_seconds())
+    birthday = start + timedelta(seconds=random_duration)
+    return birthday.strftime('%Y-%m-%d')
 
 
-def _validate_birthday(birthday):
+def _validate_birthday(user_birthday):
     # raises PTCInvalidBirthdayException if invalid
     # split by -
-    # has to be at least 2002 and after 1910
+    # has to be at least 2002 and after 1918
     # char length 10
     try:
-        assert len(birthday) == 10
+        birthday = datetime.strptime(user_birthday, '%Y-%m-%d')
 
-        # Ensure birthday is delimited by -
-        # Ensure birthday is zero-padded
-        year, month, day = birthday.split("-")
-        assert year is not None and month is not None and day is not None
-        assert len(year) == 4 and year.isdigit()
-        assert len(month) == 2 and month.isdigit()
-        assert len(day) == 2 and day.isdigit()
-
-        # Check year is between 1910 and 2002, and also that it's a valid date
-        assert datetime.datetime(year=1910, month=1, day=1) <= datetime.datetime(year=int(year), month=int(month), day=int(day)) <= datetime.datetime(year=2002, month=12, day=31)
-
+        # Check year is between 1918 and 2002, and also that it's a valid date
+        assert datetime(year=1910, month=1, day=1) <= birthday <= datetime(year=2002, month=12, day=31)
     except (AssertionError, ValueError):
         raise PTCInvalidBirthdayException("Invalid birthday!")
     else:
@@ -81,7 +64,6 @@ def _validate_password(password):
     # Check that password length is between 8 and 50 characters long
     if len(password) < 8 or len(password) > 50:
         raise PTCInvalidPasswordException('Password must be between 8 and 50 characters.')
-    return True
 
 
 def _validate_username(driver, username):
@@ -95,7 +77,7 @@ def _validate_username(driver, username):
             print(("User '" + username + "' is already in use."))
             driver.close()
             raise PTCInvalidNameException("User '" + username + "' is already in use.")
-    except:
+    except Exception:
         print("Failed to check if the username is available!")
 
 
@@ -106,10 +88,8 @@ def create_account(username, password, email, birthday, captchakey2, captchatime
     print(("Attempting to create user {user}:{pw}. Opening browser...".format(user=username, pw=password)))
     if captchakey2 != None:
         dcap = dict(DesiredCapabilities.PHANTOMJS)
-        #driver = webdriver.PhantomJS(desired_capabilities=dcap)
         driver = PhantomJS(desired_capabilities=dcap)
     else:
-        #driver = webdriver.Chrome()
         driver = Chrome()
         driver.set_window_size(600, 600)
 
@@ -125,7 +105,6 @@ def create_account(username, password, email, birthday, captchakey2, captchatime
     elem = driver.find_element_by_name("dob")
     elem.send_keys(birthday)
     elem.submit()
-    # Todo: ensure valid birthday
 
     # Create account page
     print("Step 2: Entering account details")
@@ -156,16 +135,16 @@ def create_account(username, password, email, birthday, captchakey2, captchatime
     driver.find_element_by_id("id_public_profile_opt_in_1").click()
     driver.find_element_by_name("terms").click()
 
-    if captchakey2 == None:
+    if not captchakey2:
         #Do manual captcha entry
         print("You did not pass a 2captcha key. Please solve the captcha manually.")
         elem = driver.find_element_by_class_name("g-recaptcha")
         driver.execute_script("arguments[0].scrollIntoView(true);", elem)
-        # Waits 1 minute for you to input captcha
+        # Waits 90 seconds for you to input captcha
         try:
-            WebDriverWait(driver, 60).until(EC.text_to_be_present_in_element_value((By.NAME, "g-recaptcha-response"), ""))
-            print("Captcha successful. Sleeping for 1 second...")
-            time.sleep(1)
+            WebDriverWait(driver, 90).until(EC.text_to_be_present_in_element_value((By.NAME, "g-recaptcha-response"), ""))
+            print("Captcha successful. Sleeping for a half second...")
+            time.sleep(.5)
         except TimeoutException as err:
             print("Timed out while manually solving captcha")
     else:
@@ -181,11 +160,11 @@ def create_account(username, password, email, birthday, captchakey2, captchatime
         recaptcharesponse = "CAPCHA_NOT_READY"
         elem = driver.find_element_by_class_name("g-recaptcha")
         print("We will wait 10 seconds for captcha to be solved by 2captcha")
-        start_time = int(time.time())
+        start_time = time.monotonic()
         timedout = False
         while recaptcharesponse == "CAPCHA_NOT_READY":
             time.sleep(10)
-            elapsedtime = int(time.time()) - start_time
+            elapsedtime = time.monotonic() - start_time
             if elapsedtime > captchatimeout:
                 print("Captcha timeout reached. Exiting.")
                 timedout = True
@@ -208,7 +187,7 @@ def create_account(username, password, email, birthday, captchakey2, captchatime
 
     try:
         _validate_response(driver)
-    except:
+    except Exception:
         print(("Failed to create user: {}".format(username)))
         driver.close()
         raise
@@ -233,36 +212,32 @@ def _validate_response(driver):
         raise PTCException("Generic failure. User was not created.")
 
 
-def random_account(username=None, password=None, email=None, birthday=None, plusmail=None, recaptcha=None, captchatimeout=1000):
-    try_username = _random_string() if username is None else str(username)
-    password = _random_password() if password is None else str(password)
-    try_email = _random_email() if email is None else str(email)
-    captchakey2 = None if recaptcha is None else str(recaptcha)
-    if plusmail is not None:
-        pm = plusmail.split("@")
-        try_email = pm[0] + "+" + try_username + "@" + pm[1]
-    try_birthday = _random_birthday() if birthday is None else str(birthday)
-
-    if birthday is not None:
-        _validate_birthday(try_birthday)
+def random_account(email, username=None, password=None, birthday=None, plusmail=True, recaptcha=None, captchatimeout=1000):
+    try_username = username if username else _random_string()
+    password = password if password else _random_password()
+    captchakey2 = recaptcha
+    if plusmail:
+        pm = email.split("@")
+        email = pm[0] + "+" + try_username + "@" + pm[1]
+    if birthday:
+        _validate_birthday(birthday)
+        try_birthday = str(birthday)
+    else:
+        try_birthday = _random_birthday()
 
     account_created = False
     while not account_created:
         try:
-            account_created = create_account(try_username, password, try_email, try_birthday, captchakey2, captchatimeout)
+            account_created = create_account(try_username, password, email, try_birthday, captchakey2, captchatimeout)
         except PTCInvalidNameException:
             if username is None:
                 try_username = _random_string()
             else:
                 raise
-        except PTCInvalidEmailException:
-            if email is None:
-                try_email = _random_email()
-            else:
-                raise
 
     return {
-        "username": try_username,
-        "password": password,
-        "email": try_email
+        'username': try_username,
+        'password': password,
+        'email': email,
+        'provider': 'ptc'
     }

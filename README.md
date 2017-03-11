@@ -1,18 +1,10 @@
 # Pikaptcha
-**This project has been discontinued and is out of date. If anyone would like to take over, please let me know via Discord.**
-
-**This is a fully functional as of 1/22/2017. It doesn't accept the TOS as the method is out of date. This can be done via PokemonGoMap, PokeAlert and im sure other methods. - Boby360**
 
 Based off pikapy by skvvv, which is based off ptc2 Kitryn, which is based off ptcaccount by jepayne1138, etc.
-Also uses pogoapi from keyphact
-
-Was updated with several features/fixes on Aug 23 2016. To update open CMD or terminal
-^^Update also broke (email verification) which is now fixed as of Aug 23 2016 5:30AM EST. Update again please.
-`pip install --upgrade git+https://github.com/sriyegna/pikaptcha`
 
 ## Description
-Pikaptcha creates PTC accounts by creating a chrome session and automatically entering data in the required fields. If you choose to use the 2captcha service, the entire script can be run automatically, else you will need to manually solve captchas.
-Pikaptcha creates the PTC account and completes the TOS in game. It does verify emails.
+Pikaptcha creates PTC accounts by creating a chrome session and automatically entering data in the required fields. If you choose to use the 2captcha service, the entire script can be run automatically, otherwise you will need to manually solve captchas.
+Pikaptcha creates the PTC account and can verify emails.
 
 ## Installation
 **For Windows**
@@ -20,48 +12,38 @@ Install the following clickable links: (if you cannot click them, all links are 
 
 1. If you intend to manually solve captcha, you need [Google Chrome](https://www.google.com/chrome/) installed to default directory in C:\Program Files (x86)\
 
-2. [Python 2.7.12](https://www.python.org/downloads/release/python-2712/). Do this during setup. http://imgur.com/k421LiP
+2. [Python 3.6](https://www.python.org/downloads/release/python-360/). Do this during setup. http://imgur.com/k421LiP
 
 3. [Git](https://git-scm.com/download/win). Do this during setup. http://imgur.com/rhQi73O
 
-4. [Microsoft Visual C++ Compiler for Python 2.7](https://www.microsoft.com/en-ca/download/details.aspx?id=44266)
+4. If you intend to manually solve captcha, [Download Chromedriver](https://sites.google.com/a/chromium.org/chromedriver/downloads). Unzip the file and place it in %PYTHONDIRECTORY%\Scripts
 
 5. Shift+Right Click your desktop and "Open command window here".
 
-6. Type `path` and hit enter. You should see C:\Python27, C:\Python27\Scripts, and C:\Program Files\Git\cmd
+6. Type `pip install git+https://github.com/Noctem/pikaptcha` and hit enter
 
-7. If you intend to manually solve captcha, [Download Chromedriver](http://chromedriver.storage.googleapis.com/2.27/chromedriver_win32.zip) (UPDATED!!). Unzip the file and place it in C:\Python27\Scripts
-
-7. If you intend to manually solve captcha, [Download Chromedriver](https://sites.google.com/a/chromium.org/chromedriver/downloads). Unzip the file and place it in C:\Python27\Scripts
-
-8. Shift+Right Click your desktop and "Open command window here".
-
-9. Type `pip install git+https://github.com/sriyegna/pikaptcha` and hit enter
-
-11. Refer to "How To Use" instructions below
+7. Refer to "How To Use" instructions below
 
 
 **For OSX**
 
 1. Open terminal and install chromedriver by typing `brew install chromedriver`
 
-2. In terminal type `pip install git+https://github.com/sriyegna/pikaptcha` without quotations and hit enter
+2. In terminal type `pip install git+https://github.com/Noctem/pikaptcha` without quotations and hit enter
 
-4. Refer to "How To Use" instructions below
+3. Refer to "How To Use" instructions below
 
 
 **For Debian based linux**
 
 1. Open terminal and install chromedriver by typing `sudo apt-get install chromium-browser`
 
-2. In terminal type `pip install git+https://github.com/sriyegna/pikaptcha` without quotations and hit enter
+2. In terminal type `pip install git+https://github.com/Noctem/pikaptcha` without quotations and hit enter
 
-3. In terminal type `pip install git+https://github.com/keyphact/pgoapi.git` without quotations and hit enter
-
-4. Refer to "How To Use" instructions below
+3. Refer to "How To Use" instructions below
 
 If an update is made to pikaptcha, all you need to do to update is open CMD or terminal and type
-    `pip install --upgrade git+https://github.com/sriyegna/pikaptcha`
+    `pip install --upgrade git+https://github.com/Noctem/pikaptcha`
 
 If you want to uninstall pikaptcha, all you need to do to uninstall is open CMD or terminal and type
     `pip uninstall pikaptcha`
@@ -97,7 +79,7 @@ If you want to use the 2captcha service (if you cannot click the links, they are
 
 1. You need to download [PhantomJS](http://phantomjs.org/download.html)
 
-2. You need to open the .zip file, open the phantomjs-2.x.x-windows folder, open the bin folder, and put phantomjs.exe in C:\Python27\Scripts
+2. You need to open the .zip file, open the phantomjs-2.x.x-windows folder, open the bin folder, and put phantomjs.exe in %PYTHONFOLDER%\Scripts
 
 3. [You need to sign up here](https://2captcha.com/auth/register)
 
@@ -129,164 +111,118 @@ You can type `pikaptcha --help` to see all parameters. Optional parameters are a
 	--username, -u #This is the username
 	--password, -p #This is the password
 	--email, -e #This is the email
-	--plusmail, -m #Suppose your gmail address is test@gmail.com. If you use -m test@gmail.com, this will activate the plusmail trick
+	--no-plusmail, -n #disable appending username to email address after + sign
 	--count, -c #This is the number of accounts to make
 	--recaptcha, -r #This is your 2captcha key
 	--autoverify, -av #Set this to True if you want to autoverify emails. Otherwise False (or don't use the tag)
 	--googlepass, -gp #This is the password to your google account if you are using -m argument and -av True
-	--location, -l #This is the location that is spoofed when accepting TOS
-	--textfile, -t #This is the location of the output text file. Eg: -t C:\users\sri\desktop\user.txt
-	--outputformat, -of #If you pass pkgo, it will print in the PokemonGo-Map format (-u user -p pass).
+	--csvfile, -f #This is the location of the output CSV file. Eg: -f 'accounts.csv'
 	--startnum, -sn #If you use -c and -u, it will start counting from this number instead
 	--captchatimeout, -ct #If you want captcha to timeout of after n seconds	
 	--inputtext, -it #If you want to read user:pass from file
-	--proxy, -px #Proxy to be used when accepting the Terms of Services. Must be host:port (ex. 1.1.1.1:80). Must be a HTTPS proxy.
 ```
 
 Example 1 : Create an entirely random account by manually entering the captcha yourself
 
 ```
-pikaptcha
+pikaptcha -e 'youremail@domain.com'
 ```
 
 Example 2 : Create an entirely random account with automated captcha solving
 
 ```
-pikaptcha -r %YOUR_2CAPTCHA_KEY%"
-When you enter your 2captcha key, it will look something like
-pikaptcha -r a6ebcb3f4a7b6f6e319d8e1c37e25ec4"
+pikaptcha -r a6ebcb3f4a7b6f6e319d8e1c37e25ec4 -e 'youremail@domain.com'
+(with your own 2Captcha key)
 ```
 	
-Example 3 : Create 10 entirely random accounts by manually entering the captcha yourself
+Example 3 : Create 5 entirely random accounts by manually entering the captcha yourself
 
 ```
-pikaptcha -c 10
+pikaptcha -c 5 -e 'youremail@domain.com'
 ```
 	
-Example 4 : Create 10 an entirely random accounts with automated captcha solving	
+Example 4 : Create 5 an entirely random accounts with automated captcha solving	
 
 ```
-pikaptcha -c 10 -r %YOUR_2CAPTCHA_KEY%
-When you enter your 2captcha key, it will look something like
-pikaptcha -c 10 -r a6ebcb3f4a7b6f6e319d8e1c37e25ec4
+pikaptcha -c 5 -r a6ebcb3f4a7b6f6e319d8e1c37e25ec4 -e 'youremail@domain.com'
 ```
 
-Example 5 : Create 10 random accounts that have the same set password=PaSsWoRd by manually entering captcha
+Example 5 : Create 5 random accounts that have the same set password=PaSsWoRd by manually entering captcha
 
 ```
-pikaptcha -c 10 -p PaSsWoRd
+pikaptcha -c 5 -p PaSsWoRd -e 'youremail@domain.com'
 ```
 
 Example 6 : Create 1 account that has a specific username=UsErNaMe with automated captcha solving
 
 ```
-pikaptcha -u UsErNaMe -r %YOUR_2CAPTCHA_KEY%
+pikaptcha -u UsErNaMe -r a6ebcb3f4a7b6f6e319d8e1c37e25ec4 -e 'youremail@domain.com'
 ```
 
-Example 7 : Create 10 accounts using a single email address (read below on plusmail for more info) with automated captcha solving
+Example 7 : Create 5 accounts with the plusmail trick with email verification and manual captcha solving
 
 ```
-pikaptcha -p PaSsWoRd -c 10 -m emailaddress@gmail.com -r %YOUR_2CAPTCHA_KEY%
+pikaptcha -c 5 -e emailaddress@gmail.com -av True -gp GoOgLePaSs
 ```
 
-Example 8 : Create 5 accounts using the plusmail trick with email verification and manual captcha solving
+Example 8 : Create 5 accounts using the plusmail trick with email verification and automated captcha solving
 
 ```
-pikaptcha -c 5 -m emailaddress@gmail.com -av True -gp GoOgLePaSs
+pikaptcha -c 5 -e emailaddress@gmail.com -r a6ebcb3f4a7b6f6e319d8e1c37e25ec4 -av True -gp GoOgLePaSs
 ```
 
-Example 9 : Create 5 accounts using the plusmail trick with email verification and automated captcha solving
+Example 9 : Specify the location to save the username:password. By default, it will save in the directory you run cmd/terminal from
 
 ```
-pikaptcha -c 5 -m emailaddress@gmail.com -r %YOUR_2CAPTCHA_KEY% -av True -gp GoOgLePaSs
-```
-	
-Example 10 : Specify the location you mock when you sign TOS
-
-```
-pikaptcha -l 40.7127837,-74.005941
-Make sure there are no spaces in between the numbers, and make sure that there is only 1 comma in between both numbers
-```
-
-Example 11 : Specify the location to save the username:password. By default, it will save in the directory you run cmd/terminal from
-
-```
-pikaptcha -t "C:\Users\YoUr_UsEr\Desktop\usernames.txt"
+pikaptcha -f "C:\Users\YoUr_UsEr\Desktop\accounts.csv" -e emailaddress@gmail.com
 You need to run cmd as admin if you want to save in C:\
 ```
 
-Example 12 : Make the output file formatted for PokemonGo-Map.
-
+Example 10 : Creating multiple accounts with the same username + a number that increments by 1 starting at 15
 ```
-pikaptcha -of pkgo
-will output -u user1 -p pass1 -u user2 -p pass2 -u user3 -p pass3
-```
-
-Example 13 : Creating multiple accounts with the same username + 1, 2, 3, ...
-```
-pikaptcha -u user -c 10
-this will create user1, user2, ..., user 10
-```
-
-Example 14 : Creating multiple accounts with the same username + a number that increments by 1 starting at 15
-```
-pikaptcha -u user -c 10 -sn 15
+pikaptcha -u user -c 10 -sn 15 -e emailaddress@gmail.com
 this will create user15, user16, ..., user 24
 ```
 
-Example 15 : If it takes longer than 40 seconds to solve captcha, cancel the request and forfeit $0.003
+Example 11 : If it takes longer than 40 seconds to solve captcha, cancel the request and forfeit $0.003
 ```
-pikaptcha -ct 40 -r %YOUR_2CAPTCHA_KEY%
+pikaptcha -ct 40 -r a6ebcb3f4a7b6f6e319d8e1c37e25ec4 -e emailaddress@gmail.com
 ```
 
-Example 16 : Read user:pass from a file. It should be formatted like so
+Example 12 : Read user:pass from a file. It should be formatted like so
 ```
 mark:pass1
 jacob:pass2
 james:passn
 ```
 ```
-pikaptcha -it C:\user\sri\desktop\inputaccs.txt
+pikaptcha -it C:\user\sri\desktop\inputaccs.txt -e emailaddress@gmail.com
 ```
 
-Example 17 : Use public proxy when accepting the Terms of Services.
-```
-pikaptcha -px https://1.1.1.1:1
-```
-
-Example 18 : Use private proxy with authentication when accepting the Terms of Services.
-```
-pikaptcha -px https://user:password@1.1.1.1:1
-```
 	  
 ## Common Issues
-If you are still having troubles, you can join us at [discord channel](https://discord.gg/PfX5B7F) https://discord.gg/PfX5B7F
 Please let us know what your issue is, instead of just saying it doesnt work. Copying the error code you receive is very helpful.
 
 - Cannot find chrome binary. Chrome should be installed to the default directory in C. Ensure that it is. If it is, try uninstalling and reinstalling.
 
-- Cannot find PgoApi module. `pip install git+https://github.com/keyphact/pgoapi.git`
+- Chromedriver not found. Your chromedriver.exe file is either not in %PYTHONFOLDER%\scripts OR you did put the file there but you do not have an environment path setup for %PYTHONFOLDER%\scripts
 
-- Chromedriver not found. Your chromedriver.exe file is either not in C:\python27\scripts OR you did put the file there but you do not have an environment path setup for C:\python27\scripts
-
-- pip is not recognized as an internal or external command. You do not have an environment path setup for C:\python27\scripts OR python 2.7.12 is not installed
+- pip is not recognized as an internal or external command. You do not have an environment path setup for %PYTHONFOLDER%\scripts OR python 3.6 is not installed
 
 - git is not recognized as an internal or external command. You did not install GIT
 
-- selenium not found `pip install selenium`
+- selenium not found `pip3 install selenium`
 
 - Stuck on processing mailbox. Your mailbox is too populated. The script is going through each email finding the pokemon ones.
 
 ## Links
 - Google Chrome https://www.google.com/chrome/
 
-- Python 2.7.12 https://www.python.org/downloads/release/python-2712/
+- Python 3.6 https://www.python.org/downloads/release/python-360/
 
 - Git https://git-scm.com/download/win
 
-- Microsoft Visual C++ Compiler for Python 2.7 https://www.microsoft.com/en-ca/download/details.aspx?id=44266
-
-- Download Chromedriver http://chromedriver.storage.googleapis.com/2.23/chromedriver_win32.zip
+- Download Chromedriver https://sites.google.com/a/chromium.org/chromedriver/downloads
 
 - 2 Captcha Signup https://2captcha.com/auth/register
 

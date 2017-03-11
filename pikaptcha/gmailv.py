@@ -1,9 +1,7 @@
 import time
 import imaplib
-import string
-import urllib.request, urllib.error, urllib.parse
-from pikaptcha.url import *
 
+from .url import activateurl
 
 def proc_mail(M):
     rv, data = M.search(None, "ALL")
@@ -11,9 +9,9 @@ def proc_mail(M):
         print("No messages found!")
         return
     else:
-        start_time = time.clock()
+        start_time = time.monotonic()
         for num in data[0].split():
-            if (time.clock() - start_time) > 30:
+            if (time.monotonic() - start_time) > 30:
                 print("It has been more than 30 seconds. Please use an email address with an empty inbox.")
             rv, data = M.fetch(num, '(RFC822)')
             if rv!= 'OK':
@@ -35,7 +33,7 @@ def proc_mail(M):
                             validate_response = activateurl(validlink)
                         print("Verified email and trashing Email with key: " + validlink[60:] + "\n")
                         M.store(num,'+X-GM-LABELS', '\\Trash')
-                    except urllib.error.URLError:
+                    except Exception:
                         print("Unable to verify email.\n")
                         M.store(num,'+X-GM-LABELS', '\\Trash')
 
