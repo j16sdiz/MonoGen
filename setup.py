@@ -2,7 +2,7 @@ from pathlib import Path
 from setuptools import setup
 
 DIST_NAME = 'MonoGen'
-VERSION = '0.3.1'
+VERSION = '0.3.2'
 AUTHOR = 'David Christenson'
 EMAIL = 'mail@noctem.xyz'
 GITHUB_USER = 'Noctem'
@@ -22,7 +22,8 @@ setup(
     download_url='{}/releases'.format(GITHUB_URL),
     install_requires=[
         'requests[security]>=2.10.0',
-        'selenium>=2.53.6'
+        'selenium>=2.53.6',
+        'selenium-requests'
     ],
     classifiers=[
         'Programming Language :: Python',

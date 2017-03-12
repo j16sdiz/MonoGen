@@ -9,7 +9,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import StaleElementReferenceException, TimeoutException
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from seleniumrequests import Chrome
+from seleniumrequests import Chrome, PhantomJS
 
 from .jibber import *
 from .ptcexceptions import *
@@ -72,21 +72,21 @@ def _validate_username(driver, username):
         response_data = response.json()
 
         if response_data['valid'] and not response_data['inuse']:
-            print(("User '" + username + "' is available, proceeding..."))
+            print("User '{}' is available, proceeding...".format(username))
         else:
-            print(("User '" + username + "' is already in use."))
+            print("User '{}' is already in use.".format(username))
             driver.close()
-            raise PTCInvalidNameException("User '" + username + "' is already in use.")
+            raise PTCInvalidNameException("User '{}' is already in use.".format(username))
     except Exception:
         print("Failed to check if the username is available!")
 
 
 def create_account(username, password, email, birthday, captchakey2, captchatimeout):
-    if password is not None:
+    if password:
         _validate_password(password)
 
     print(("Attempting to create user {user}:{pw}. Opening browser...".format(user=username, pw=password)))
-    if captchakey2 != None:
+    if captchakey2:
         dcap = dict(DesiredCapabilities.PHANTOMJS)
         driver = PhantomJS(desired_capabilities=dcap)
     else:
@@ -143,8 +143,7 @@ def create_account(username, password, email, birthday, captchakey2, captchatime
         # Waits 90 seconds for you to input captcha
         try:
             WebDriverWait(driver, 90).until(EC.text_to_be_present_in_element_value((By.NAME, "g-recaptcha-response"), ""))
-            print("Captcha successful. Sleeping for a half second...")
-            time.sleep(.5)
+            print("Captcha successful.")
         except TimeoutException as err:
             print("Timed out while manually solving captcha")
     else:
@@ -172,10 +171,9 @@ def create_account(username, password, email, birthday, captchakey2, captchatime
             print("Captcha still not solved, waiting another 10 seconds.")
             recaptcharesponse = "Failed"
             while(recaptcharesponse == "Failed"):
-                recaptcharesponse = openurl("http://2captcha.com/res.php?key=" + captchakey2 + "&action=get&id=" + captchaid)
+                recaptcharesponse = openurl("http://2captcha.com/res.php?key={}&action=get&id={}".format(captchakey2, captchaid))
         if timedout == False:
             solvedcaptcha = recaptcharesponse[3:]
-            captchalen = len(solvedcaptcha)
             elem = driver.find_element_by_name("g-recaptcha-response")
             elem = driver.execute_script("arguments[0].style.display = 'block'; return arguments[0];", elem)
             elem.send_keys(solvedcaptcha)
