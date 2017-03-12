@@ -2,7 +2,7 @@ from pathlib import Path
 from setuptools import setup
 
 DIST_NAME = 'MonoGen'
-VERSION = '0.3.2'
+VERSION = '0.3.3'
 AUTHOR = 'David Christenson'
 EMAIL = 'mail@noctem.xyz'
 GITHUB_USER = 'Noctem'

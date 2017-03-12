@@ -53,7 +53,7 @@ def _validate_birthday(user_birthday):
         birthday = datetime.strptime(user_birthday, '%Y-%m-%d')
 
         # Check year is between 1918 and 2002, and also that it's a valid date
-        assert datetime(year=1910, month=1, day=1) <= birthday <= datetime(year=2002, month=12, day=31)
+        assert datetime(year=1918, month=1, day=1) <= birthday <= datetime(year=2002, month=12, day=31)
     except (AssertionError, ValueError):
         raise PTCInvalidBirthdayException("Invalid birthday!")
     else:
@@ -85,16 +85,17 @@ def create_account(username, password, email, birthday, captchakey2, captchatime
     if password:
         _validate_password(password)
 
-    print(("Attempting to create user {user}:{pw}. Opening browser...".format(user=username, pw=password)))
+    print("Attempting to create user {user}:{pw}. Opening browser...".format(user=username, pw=password))
     if captchakey2:
         dcap = dict(DesiredCapabilities.PHANTOMJS)
+        dcap["phantomjs.page.settings.userAgent"] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.98 Safari/537.36'
         driver = PhantomJS(desired_capabilities=dcap)
     else:
         driver = Chrome()
         driver.set_window_size(600, 600)
 
     # Input age: 1992-01-08
-    print(("Step 1: Verifying age using birthday: {}".format(birthday)))
+    print("Step 1: Verifying age using birthday:", birthday)
     driver.get("{}/sign-up/".format(BASE_URL))
     assert driver.current_url == "{}/sign-up/".format(BASE_URL)
     elem = driver.find_element_by_name("dob")
@@ -144,7 +145,7 @@ def create_account(username, password, email, birthday, captchakey2, captchatime
         try:
             WebDriverWait(driver, 90).until(EC.text_to_be_present_in_element_value((By.NAME, "g-recaptcha-response"), ""))
             print("Captcha successful.")
-        except TimeoutException as err:
+        except TimeoutException:
             print("Timed out while manually solving captcha")
     else:
         # Now to automatically handle captcha
@@ -186,7 +187,7 @@ def create_account(username, password, email, birthday, captchakey2, captchatime
     try:
         _validate_response(driver)
     except Exception:
-        print(("Failed to create user: {}".format(username)))
+        print("Failed to create user:", username)
         driver.close()
         raise
 
