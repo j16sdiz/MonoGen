@@ -75,7 +75,7 @@ def _validate_username(driver, username):
             print("User '{}' is available, proceeding...".format(username))
         else:
             print("User '{}' is already in use.".format(username))
-            driver.close()
+            driver.quit()
             raise PTCInvalidNameException("User '{}' is already in use.".format(username))
     except Exception:
         print("Failed to check if the username is available!")
@@ -188,11 +188,11 @@ def create_account(username, password, email, birthday, captchakey2, captchatime
         _validate_response(driver)
     except Exception:
         print("Failed to create user:", username)
-        driver.close()
+        driver.quit()
         raise
 
     print("Account successfully created.")
-    driver.close()
+    driver.quit()
     return True
 
 
@@ -231,6 +231,8 @@ def random_account(email, username=None, password=None, birthday=None, plusmail=
         except PTCInvalidNameException:
             if username is None:
                 try_username = _random_string()
+                if plusmail:
+                    email = pm[0] + "+" + try_username + "@" + pm[1]
             else:
                 raise
 
